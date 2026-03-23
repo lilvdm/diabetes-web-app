@@ -1,8 +1,8 @@
 import os
-# This line tells Keras to behave if there are versioning jitters
-os.environ['TF_USE_LEGACY_KERAS'] = '0' 
+os.environ['TF_USE_LEGACY_KERAS'] = '1' # Force Keras 2 logic
+
 import numpy as np
-import pandas as pd  # <--- THIS LINE IS MISSING!
+import pandas as pd # <--- THIS LINE IS MISSING!
 from sklearn.preprocessing import MinMaxScaler
 from flask import Flask, render_template
 from flask_bootstrap import Bootstrap5

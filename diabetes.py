@@ -7,28 +7,11 @@ from flask_bootstrap import Bootstrap5
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
-import tensorflow as tf
 from tensorflow import keras
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'hard to guess string'
 bootstrap5 = Bootstrap5(app)
-
-# --- GLOBAL VARIABLES ---
-# Load these outside the route for better performance
-try:
-    data = pd.read_csv('./diabetes.csv', sep=',')
-    X = data.values[:, 0:8]
-    scaler = MinMaxScaler()
-    scaler.fit(X)
-    
-    # Load the model - using the specific path for Render
-    model_path = os.path.join(os.getcwd(), 'pima_model.keras')
-    model = keras.models.load_model(model_path)
-    print("Model and Scaler loaded successfully!")
-except Exception as e:
-    print(f"Error during startup: {e}")
-    model = None
 
 class LabForm(FlaskForm):
     preg = StringField('# Pregnancies', validators=[DataRequired()])
@@ -50,27 +33,24 @@ def index():
 def lab():
     form = LabForm()
     if form.validate_on_submit():
-        if model is None:
-            return "Model not loaded. Check server logs."
-            
-        X_test = np.array([[float(form.preg.data),
-                          float(form.glucose.data),
-                          float(form.blood.data),
-                          float(form.skin.data),
-                          float(form.insulin.data),
-                          float(form.bmi.data),
-                          float(form.dpf.data),
-                          float(form.age.data)]])
+        X_test = np.array([[float(form.preg.data), float(form.glucose.data),
+                          float(form.blood.data), float(form.skin.data),
+                          float(form.insulin.data), float(form.bmi.data),
+                          float(form.dpf.data), float(form.age.data)]])
         
-        X_test_scaled = scaler.transform(X_test)
-        prediction = model.predict(X_test_scaled)
-        res = float(np.round(prediction[0][0] * 100, 2))
+        data = pd.read_csv('./diabetes.csv', sep=',')
+        X = data.values[:, 0:8]
+        scaler = MinMaxScaler()
+        scaler.fit(X)
+        X_test = scaler.transform(X_test)
+        
+        model = keras.models.load_model('pima_model.keras')
+        prediction = model.predict(X_test)
+        res = prediction[0][0]
+        res = np.round(res * 100, 2)
         
         return render_template('result.html', res=res)
-    
     return render_template('prediction.html', form=form)
 
 if __name__ == '__main__':
-    # This is key for Render's port detection
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run()

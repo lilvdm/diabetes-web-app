@@ -37,4 +37,4 @@ model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy']
 model.fit(X_train, y_train, epochs=30, batch_size=16, verbose=0)
 
 # Export Model
-model.save('pima_model.keras')
+model.save('pima_model.h5')

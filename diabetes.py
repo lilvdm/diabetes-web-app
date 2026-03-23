@@ -17,7 +17,7 @@ bootstrap5 = Bootstrap5(app)
 
 # --- GLOBAL INITIALIZATION (Only happens once) ---
 # 1. Load the model globally
-model = keras.models.load_model('pima_model.keras')
+model = keras.models.load_model('pima_model.h5')
 
 # 2. Setup the scaler globally so we don't read the CSV on every click
 data = pd.read_csv('./diabetes.csv', sep=',')

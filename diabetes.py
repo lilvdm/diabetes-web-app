@@ -1,19 +1,27 @@
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
-import googleapiclient.discovery
 import os
 from flask import Flask, render_template
-from dotenv import load_dotenv
-
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'hard to guess string'
 from flask_bootstrap import Bootstrap5
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
+from tensorflow import keras
 
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'hard to guess string'
 bootstrap5 = Bootstrap5(app)
+
+# --- LOAD EVERYTHING ONCE AT STARTUP ---
+# This saves memory and prevents 502/Timeout errors
+data = pd.read_csv('./diabetes.csv', sep=',')
+X = data.values[:, 0:8]
+scaler = MinMaxScaler()
+scaler.fit(X)
+
+# Load the model globally
+model = keras.models.load_model('pima_model.keras')
 
 class LabForm(FlaskForm):
     preg = StringField('# Pregnancies', validators=[DataRequired()])
@@ -35,7 +43,7 @@ def index():
 def lab():
     form = LabForm()
     if form.validate_on_submit():
-        # get the dorm data for the patient data and put into a form for the
+        # Input data conversion
         X_test = np.array([[float(form.preg.data),
                           float(form.glucose.data),
                           float(form.blood.data),
@@ -45,32 +53,14 @@ def lab():
                           float(form.dpf.data),
                           float(form.age.data)]])
         
-        print(X_test.shape)
-        print(X_test)
+        # Scale using the global scaler
+        X_test_scaled = scaler.transform(X_test)
         
-        # get the data for the diabetes data.
-        data = pd.read_csv('./diabetes.csv', sep=',')
-        
-        # extract the X and y from the imported data
-        X = data.values[:, 0:8]
-        y = data.values[:, 8]
-        
-        # use MinMaxScaler to fit a scaler object
-        scaler = MinMaxScaler()
-        scaler.fit(X)
-        
-        # min max scale the data for the prediction
-        X_test = scaler.transform(X_test)
-        
-        # 모델 로드
-        from tensorflow import keras
-        model = keras.models.load_model('pima_model.keras')
-        
-        # evaluate model
-        prediction = model.predict(X_test)
+        # Predict using the global model
+        prediction = model.predict(X_test_scaled)
         res = prediction[0][0]
-        res = np.round(res, 2)
-        res = (float)(np.round(res * 100))
+        # Calculate percentage
+        res = float(np.round(res * 100, 2))
         
         return render_template('result.html', res=res)
     

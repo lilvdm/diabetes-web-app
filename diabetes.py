@@ -1,5 +1,7 @@
-import numpy as np
-import pandas as pd
+import os
+# This line tells Keras to behave if there are versioning jitters
+os.environ['TF_USE_LEGACY_KERAS'] = '0' 
+
 from sklearn.preprocessing import MinMaxScaler
 import os
 from flask import Flask, render_template

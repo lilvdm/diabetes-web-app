@@ -1,9 +1,9 @@
 import os
 # This line tells Keras to behave if there are versioning jitters
 os.environ['TF_USE_LEGACY_KERAS'] = '0' 
-
+import numpy as np
+import pandas as pd  # <--- THIS LINE IS MISSING!
 from sklearn.preprocessing import MinMaxScaler
-import os
 from flask import Flask, render_template
 from flask_bootstrap import Bootstrap5
 from flask_wtf import FlaskForm
@@ -16,6 +16,9 @@ app.config['SECRET_KEY'] = 'hard to guess string'
 bootstrap5 = Bootstrap5(app)
 
 # --- GLOBAL INITIALIZATION (Only happens once) ---
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(BASE_DIR, 'pima_model.h5')
+csv_path = os.path.join(BASE_DIR, 'diabetes.csv')
 # 1. Load the model globally
 model = keras.models.load_model('pima_model.h5')
 

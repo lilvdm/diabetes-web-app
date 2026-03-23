@@ -67,4 +67,6 @@ def lab():
     return render_template('prediction.html', form=form)
 
 if __name__ == '__main__':
-    app.run()
+    # Get port from environment variable, default to 5000 for local dev
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)

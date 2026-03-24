@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: diabetes-web-app
+    env: python
+    plan: free
+    numInstances: 1 # Force only one instance to save RAM

@@ -26,6 +26,10 @@ class LabForm(FlaskForm):
     age = StringField('Age', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
+# 모델 로드
+from tensorflow import keras
+model = keras.models.load_model('pima_model.keras')
+
 @app.route('/')
 @app.route('/index')
 def index():
@@ -62,9 +66,7 @@ def lab():
         # min max scale the data for the prediction
         X_test = scaler.transform(X_test)
         
-        # 모델 로드
-        from tensorflow import keras
-        model = keras.models.load_model('pima_model.keras')
+
         
         # evaluate model
         prediction = model.predict(X_test)
